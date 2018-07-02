@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "41585649666",
+    "firebase_url": "https://books2go-56df4.firebaseio.com",
+    "project_id": "books2go-56df4",
+    "storage_bucket": "books2go-56df4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:41585649666:android:cee42a7c0ce83ef7",
+        "android_client_info": {
+          "package_name": "com.gdgbaroda.books2go"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "41585649666-96hi3i10mf5csj8o2s6uo4l5cvhfoi55.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7MSJbSWpbiKP9vjdmaz7RGI-py01_Wss"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
