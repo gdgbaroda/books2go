@@ -28,7 +28,7 @@ class _AppState extends State<App> {
     return new MaterialApp(
       title: 'Books2Go',
       theme: new ThemeData(
-        primarySwatch: Colors.blueGrey,
+        primarySwatch: Colors.amber,
       ),
       home: new LoginWidget(
         user: this.user,

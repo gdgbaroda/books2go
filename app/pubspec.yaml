@@ -1,5 +1,5 @@
-name: app
-description: A new Flutter project.
+name: books2go
+description: Keep a track of your favorite books!
 
 dependencies:
   flutter:
