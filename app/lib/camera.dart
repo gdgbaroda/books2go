@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import './screen.dart';
+import 'nav_drawer.dart';
 
-class CameraWidget extends Screen {
-  CameraWidget({Key key, user, logout}) : super(key: key, user: user, logout: logout);
+class CameraWidget extends StatefulWidget {
+  CameraWidget({Key key}) : super(key: key);
 
   @override
   CameraWidgetState createState() => CameraWidgetState();
@@ -50,7 +50,7 @@ class CameraWidgetState extends State<CameraWidget> {
           children: this.createBody(),
         ),
       ),
-      drawer: this.widget.createDrawer(context),
+      drawer: NavDrawer(),
     );
   }
 
