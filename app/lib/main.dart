@@ -1,3 +1,4 @@
+import 'package:books2go/search_books.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
@@ -46,7 +47,8 @@ class _AppState extends State<App> {
           ),
           home: new LoginWidget(),
           routes: <String, WidgetBuilder>{
-            '/camera': (BuildContext context) => CameraWidget()
+            '/camera': (BuildContext context) => CameraWidget(),
+            '/search_books': (context) => search_books()
           }),
     );
   }
