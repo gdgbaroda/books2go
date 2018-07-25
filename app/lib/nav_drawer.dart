@@ -83,7 +83,7 @@ class _NavDrawerState extends State<NavDrawer> {
         ),
         ListTile(
           leading: Icon(Icons.book),
-          title: const Text('search books'),
+          title: const Text('Search Books'),
           onTap: _searchbook,
         ),
         ListTile(

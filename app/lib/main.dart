@@ -48,7 +48,7 @@ class _AppState extends State<App> {
           home: new LoginWidget(),
           routes: <String, WidgetBuilder>{
             '/camera': (BuildContext context) => CameraWidget(),
-            '/search_books': (context) => search_books()
+            '/search_books': (context) => SearchBooksWidget()
           }),
     );
   }
