@@ -16,6 +16,10 @@ class _NavDrawerState extends State<NavDrawer> {
   void _openCamera() {
     Navigator.of(context).pushNamed('/camera');
   }
+  void _searchbook(){
+    Navigator.of(context).pushNamed('/search_books');
+
+  }
 
   void _logout() {
     _popToRoot();
@@ -78,10 +82,16 @@ class _NavDrawerState extends State<NavDrawer> {
           onTap: _openCamera,
         ),
         ListTile(
+          leading: Icon(Icons.book),
+          title: const Text('Search Books'),
+          onTap: _searchbook,
+        ),
+        ListTile(
           leading: Icon(Icons.exit_to_app),
           title: const Text('Logout'),
           onTap: _logout,
-        )
+        ),
+
       ]);
     } else {
       widgets.add(ListTile(
