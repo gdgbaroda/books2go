@@ -221,15 +221,18 @@ class Book {
       this.publisher = volumeInfo['publisher'] ?? '';
       this.pages = volumeInfo['pageCount'];
       this.rating = volumeInfo['averageRating'];
-      this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']) ??
-          'https://placehold.it/100x100';
 
+      try {
+        this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);  
+      } catch (e) {
+          this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
+          print('While setting thumbnail : ' + e.toString());
+      }
+    
       if (volumeInfo['publishedDate'] is String) {
         var parts = volumeInfo['publishedDate'].split('-');
         this.publishedAt = parts[0];
       }
-
-      print(this);
     } catch (e) {
       print(e);
     }
