@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:books2go/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBooksWidget extends StatefulWidget {
@@ -10,9 +15,14 @@ class SearchBooksWidget extends StatefulWidget {
 
 class _SearchBooksWidgetState extends State<SearchBooksWidget> {
   List<Book> _items = new List();
+  String uId;
 
   final subject = new PublishSubject<String>();
 
+//  Future<String> getCurrentUserRef() async {
+//    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+//    return user.uid.toString();
+//  }
   bool _isLoading = false;
 
   void _textChanged(String text) {
@@ -67,6 +77,10 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     subject.stream
         .debounce(new Duration(milliseconds: 600))
         .listen(_textChanged);
+
+    FirebaseAuth.instance.currentUser().then((user) {
+      uId= user.uid;
+    });
   }
 
   Widget _createSearchBar(BuildContext context) {
@@ -99,10 +113,10 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
             child: new Row(
               children: <Widget>[
                 new Image.network(book.thumbnail,
-                    height: 80.0, width: 80.0, fit: BoxFit.fitHeight),
+                    height: 120.0, width: 80.0, fit: BoxFit.fitHeight),
                 Expanded(
                     child: Container(
-                  height: 80.0,
+                  height: 120.0,
                   margin: EdgeInsets.symmetric(horizontal: 8.0),
                   child: _createBookItemDescriptionSection(context, book),
                 )),
@@ -136,7 +150,14 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
             fontSize: 13.0,
           ),
         ),
-        Spacer(),
+        IconButton(
+          padding: EdgeInsets.all(0.0),
+          alignment: Alignment.centerRight,
+          icon: new Icon(Icons.favorite_border),
+          tooltip: 'favourate the books',
+          onPressed: () { setState(() { _favourate(book);icon: new Icon(Icons.favorite_border);}); },//todo change icon here onclick event
+        ),
+//        Spacer(),
         book.rating != null
             ? Row(
                 children: <Widget>[
@@ -195,6 +216,12 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
       ),
     );
   }
+
+
+  void _favourate(Book book) {
+    final _favourateBook = FirebaseDatabase.instance.reference().child('favourates').child(uId);
+    _favourateBook.push().set(book.toJson());
+  }
 }
 
 class Book {
@@ -237,4 +264,17 @@ class Book {
       print(e);
     }
   }
+  toJson() {
+    return {
+      "title": title,
+      "thumbnail":thumbnail,
+      "pages": pages,
+      "rating":rating,
+      "publisher":publisher,
+      "authors":authors,
+      "publishedAt":publishedAt
+    };
+  }
 }
+
+

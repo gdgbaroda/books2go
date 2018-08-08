@@ -18,9 +18,10 @@ class _NavDrawerState extends State<NavDrawer> {
   }
   void _searchbook(){
     Navigator.of(context).pushNamed('/search_books');
-
   }
-
+  void _favbbook(){
+    Navigator.of(context).pushNamed('/favourate_books');
+  }
   void _logout() {
     _popToRoot();
     Auth.logout();
@@ -85,6 +86,11 @@ class _NavDrawerState extends State<NavDrawer> {
           leading: Icon(Icons.book),
           title: const Text('Search Books'),
           onTap: _searchbook,
+        ),
+        ListTile(
+          leading: Icon(Icons.favorite),
+          title: const Text('fav Books'),
+          onTap: _favbbook,
         ),
         ListTile(
           leading: Icon(Icons.exit_to_app),
