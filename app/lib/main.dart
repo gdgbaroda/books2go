@@ -6,6 +6,7 @@ import 'login.dart';
 import 'camera.dart';
 import 'root_context.dart';
 import 'auth.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(new App());
 
@@ -38,6 +39,11 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return RootContext(
       user: user,
       child: MaterialApp(
