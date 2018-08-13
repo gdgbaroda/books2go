@@ -18,7 +18,6 @@ class _NavDrawerState extends State<NavDrawer> {
   }
   void _searchbook(){
     Navigator.of(context).pushNamed('/search_books');
-
   }
 
   void _logout() {

@@ -19,7 +19,7 @@ import java.io.File;
 import android.view.Surface;
 
 public class MainActivity extends FlutterActivity {
-    private static final String CHANNEL = "samples.flutter.io/battery";
+    private static final String CHANNEL = "books2go";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +78,6 @@ public class MainActivity extends FlutterActivity {
     public int getImageAngle(String imagePath) {
         int rotate = -1;
         try {
-            //Uri imageUri = Uri.parse(new File(imagePath).toString());
-            //getContentResolver().notifyChange(imageUri, null);
             File imageFile = new File(imagePath);
             ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
