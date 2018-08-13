@@ -1,11 +1,9 @@
-import 'dart:async';
+import 'dart:convert';
 
-import 'package:books2go/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:convert';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBooksWidget extends StatefulWidget {
@@ -16,6 +14,7 @@ class SearchBooksWidget extends StatefulWidget {
 class _SearchBooksWidgetState extends State<SearchBooksWidget> {
   List<Book> _items = new List();
   String uId;
+//  IconData favBorder = Icons.favorite_border;
 
   final subject = new PublishSubject<String>();
 
@@ -79,7 +78,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
         .listen(_textChanged);
 
     FirebaseAuth.instance.currentUser().then((user) {
-      uId= user.uid;
+      uId = user.uid;
     });
   }
 
@@ -97,7 +96,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
           decoration: new InputDecoration(
             border: InputBorder.none,
             contentPadding: EdgeInsets.all(16.0),
-            hintText: 'Sherlock Holmes, Dan Brown, Life of Pi...',
+            hintText: 'Search Books',
           ),
           onChanged: (string) => (subject.add(string)),
         ))
@@ -154,8 +153,14 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
           padding: EdgeInsets.all(0.0),
           alignment: Alignment.centerRight,
           icon: new Icon(Icons.favorite_border),
-          tooltip: 'favourate the books',
-          onPressed: () { setState(() { _favourate(book);icon: new Icon(Icons.favorite_border);}); },//todo change icon here onclick event
+          tooltip: 'favourite the books',
+          onPressed: () {
+            setState(() {
+              _favourite(book);
+//              new Icon(Icons.favorite);
+
+            });
+          },
         ),
 //        Spacer(),
         book.rating != null
@@ -217,10 +222,10 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     );
   }
 
-
-  void _favourate(Book book) {
-    final _favourateBook = FirebaseDatabase.instance.reference().child('favourates').child(uId);
-    _favourateBook.push().set(book.toJson());
+  void _favourite(Book book) {
+    final _favouriteBook =
+        FirebaseDatabase.instance.reference().child('favourites').child(uId);
+    _favouriteBook.push().set(book.toJson());
   }
 }
 
@@ -250,12 +255,12 @@ class Book {
       this.rating = volumeInfo['averageRating'];
 
       try {
-        this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);  
+        this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);
       } catch (e) {
-          this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
-          print('While setting thumbnail : ' + e.toString());
+        this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
+        print('While setting thumbnail : ' + e.toString());
       }
-    
+
       if (volumeInfo['publishedDate'] is String) {
         var parts = volumeInfo['publishedDate'].split('-');
         this.publishedAt = parts[0];
@@ -264,17 +269,16 @@ class Book {
       print(e);
     }
   }
+
   toJson() {
     return {
       "title": title,
-      "thumbnail":thumbnail,
+      "thumbnail": thumbnail,
       "pages": pages,
-      "rating":rating,
-      "publisher":publisher,
-      "authors":authors,
-      "publishedAt":publishedAt
+      "rating": rating,
+      "publisher": publisher,
+      "authors": authors,
+      "publishedAt": publishedAt
     };
   }
 }
-
-

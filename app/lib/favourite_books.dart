@@ -19,7 +19,7 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
     FirebaseAuth.instance.currentUser().then((user) {
       uId= user.uid;
       final mainReference = FirebaseDatabase.instance.reference().child(
-          'favourates').child(uId);
+          'favourites').child(uId);
       mainReference.onChildAdded.listen(_onEntryAdded);
     });
 
@@ -61,7 +61,7 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
             padding: EdgeInsets.all(0.0),
             alignment: Alignment.centerRight,
             icon: new Icon(Icons.favorite),
-            tooltip: 'favourate the books', onPressed: () {},
+            tooltip: 'favourite the books', onPressed: () {},
           ),
 
           book.rating != null
@@ -115,7 +115,7 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Favourate Books'),
+        title: Text('Favourite Books'),
       ),
       body: new Container(
       padding:
@@ -130,6 +130,8 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
       padding: EdgeInsets.all(16.0),
       )
           : new ListView.builder(
+        reverse: true,
+      physics: BouncingScrollPhysics(),
       padding: new EdgeInsets.all(8.0),
     itemCount: _items.length,
     itemBuilder: (BuildContext context, int index) {

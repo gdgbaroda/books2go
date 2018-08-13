@@ -20,7 +20,7 @@ class _NavDrawerState extends State<NavDrawer> {
     Navigator.of(context).pushNamed('/search_books');
   }
   void _favbbook(){
-    Navigator.of(context).pushNamed('/favourate_books');
+    Navigator.of(context).pushNamed('/favourite_books');
   }
   void _logout() {
     _popToRoot();

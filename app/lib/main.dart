@@ -1,4 +1,4 @@
-import 'package:books2go/favourate_books.dart';
+import 'package:books2go/favourite_books.dart';
 import 'package:books2go/search_books.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,7 +50,7 @@ class _AppState extends State<App> {
           routes: <String, WidgetBuilder>{
             '/camera': (BuildContext context) => CameraWidget(),
             '/search_books': (context) => SearchBooksWidget(),
-            '/favourate_books': (context) => FavBooksWidget()
+            '/favourite_books': (context) => FavBooksWidget()
           }),
     );
   }
