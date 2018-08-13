@@ -4,6 +4,10 @@ import 'dart:convert';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBooksWidget extends StatefulWidget {
+  final String initialSearch;
+
+  SearchBooksWidget({Key key, this.initialSearch}) : super(key: key);
+
   @override
   State createState() => new _SearchBooksWidgetState();
 }
@@ -14,6 +18,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
   final subject = new PublishSubject<String>();
 
   bool _isLoading = false;
+  TextEditingController textEditingController = TextEditingController(text: '');
 
   void _textChanged(String text) {
     if (text.isEmpty) {
@@ -67,6 +72,11 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     subject.stream
         .debounce(new Duration(milliseconds: 600))
         .listen(_textChanged);
+
+    if (widget.initialSearch != null) {
+      textEditingController.text = widget.initialSearch;
+      subject.add(widget.initialSearch);
+    }
   }
 
   Widget _createSearchBar(BuildContext context) {
@@ -80,6 +90,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
         new Expanded(
             child: TextField(
           autofocus: true,
+          controller: textEditingController,
           decoration: new InputDecoration(
             border: InputBorder.none,
             contentPadding: EdgeInsets.all(16.0),
@@ -223,12 +234,12 @@ class Book {
       this.rating = volumeInfo['averageRating'];
 
       try {
-        this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);  
+        this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);
       } catch (e) {
-          this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
-          print('While setting thumbnail : ' + e.toString());
+        this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
+        print('While setting thumbnail : ' + e.toString());
       }
-    
+
       if (volumeInfo['publishedDate'] is String) {
         var parts = volumeInfo['publishedDate'].split('-');
         this.publishedAt = parts[0];
