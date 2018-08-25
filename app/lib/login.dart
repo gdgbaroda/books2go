@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth.dart';
-import 'nav_drawer.dart';
 import 'root_context.dart';
 
 class LoginWidget extends StatefulWidget {
@@ -25,6 +24,9 @@ class LoginWidgetState extends State<LoginWidget> {
     this._setLoading(true);
     await Auth.login();
     this._setLoading(false);
+
+    // Redirecting to Home
+    Navigator.of(context).pushNamed('/home');
   }
 
   @override
@@ -32,9 +34,6 @@ class LoginWidgetState extends State<LoginWidget> {
     RootContext rootContext = context.inheritFromWidgetOfExactType(RootContext);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Books2Go'),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +41,7 @@ class LoginWidgetState extends State<LoginWidget> {
           children: this.createBody(rootContext.user),
         ),
       ),
-      drawer: rootContext.user == null ? null : NavDrawer(),
+      backgroundColor: Colors.amber,
     );
   }
 
@@ -51,11 +50,11 @@ class LoginWidgetState extends State<LoginWidget> {
     var children = <Widget>[];
 
     if (this.loading) {
-      children.add(new CircularProgressIndicator());
+      children.add(new CircularProgressIndicator(
+        valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+      ));
     } else if (user == null) {
       children.addAll(this.createLoginScreen());
-    } else {
-      children.addAll(this.createWelcomeScreen(user));
     }
 
     return children;
@@ -66,7 +65,7 @@ class LoginWidgetState extends State<LoginWidget> {
       Icon(
         Icons.book,
         size: 80.0,
-        color: Colors.amber,
+        color: Colors.white,
       ),
       Container(
         margin: const EdgeInsets.only(top: 10.0),
@@ -74,13 +73,13 @@ class LoginWidgetState extends State<LoginWidget> {
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 25.0,
-                color: Colors.amber)),
+                color: Colors.white)),
       ),
-      Container(
-        margin: const EdgeInsets.only(top: 6.0),
-        child: Text('Your friendly book manager',
-            style: TextStyle(fontSize: 15.0, color: Colors.black87)),
-      ),
+//      Container(
+//        margin: const EdgeInsets.only(top: 6.0),
+//        child: Text('Your friendly book manager',
+//            style: TextStyle(fontSize: 15.0, color: Colors.black87)),
+//      ),
       Container(
         margin: const EdgeInsets.only(top: 32.0),
         child: RaisedButton(
@@ -100,21 +99,6 @@ class LoginWidgetState extends State<LoginWidget> {
           splashColor: Color.fromARGB(255, 222, 222, 222),
           onPressed: _login,
         ),
-      ),
-    ];
-  }
-
-  List<Widget> createWelcomeScreen(FirebaseUser user) {
-    return <Widget>[
-      Icon(
-        Icons.tag_faces,
-        size: 100.0,
-        color: Colors.amber,
-      ),
-      Container(
-        margin: const EdgeInsets.only(top: 10.0),
-        child: Text("Welcome ${user.displayName}!",
-            style: TextStyle(fontSize: 15.0, color: Colors.black87)),
       ),
     ];
   }
