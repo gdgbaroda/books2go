@@ -1,3 +1,4 @@
+import 'package:books2go/BookModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -9,22 +10,19 @@ class FavBooksWidget extends StatefulWidget {
   State createState() => new _FavBooksWidgetState();
 }
 
-
 class _FavBooksWidgetState extends State<FavBooksWidget> {
-  List<GetBook> _items = new List();
+  List<BookModel> _items = new List();
   String uId;
   bool _isLoading = false;
 
   _FavBooksWidgetState(){
     FirebaseAuth.instance.currentUser().then((user) {
       uId= user.uid;
-      final mainReference = FirebaseDatabase.instance.reference().child(
-          'favourites').child(uId);
+      final mainReference = FirebaseDatabase.instance.reference().child(uId).child('favourites');
       mainReference.onChildAdded.listen(_onEntryAdded);
     });
 
   }
-
 
   @override
   void initState() {
@@ -34,7 +32,7 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
   @override
   Widget build(BuildContext context) {
 
-    Widget _createBookItemDescriptionSection(BuildContext context, GetBook book) {
+    Widget _createBookItemDescriptionSection(BuildContext context, BookModel book) {
       return Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -88,8 +86,7 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
       );
     }
 
-
-    Widget _createBookItem(BuildContext context, GetBook book) {
+    Widget _createBookItem(BuildContext context, BookModel book) {
       return new Column(
         children: <Widget>[
           Padding(
@@ -110,8 +107,6 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
         ],
       );
     }
-
-
 
     return Scaffold(
       appBar: AppBar(
@@ -147,44 +142,9 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
   }
   _onEntryAdded(Event event) {
     setState(() {
-      _items.add(new GetBook.fromSnapshot(event.snapshot));
+      _items.add(new BookModel.fromSnapshot(event.snapshot));
     });
   }
 }
 
 
-class GetBook {
-  String title, thumbnail, publisher, publishedAt;
-  List<String> authors;
-  num pages, rating;
-
-  GetBook(
-      {this.title,
-        this.thumbnail,
-        this.pages,
-        this.rating,
-        this.publisher,
-        this.authors,
-        this.publishedAt});
-
-  GetBook.fromSnapshot(DataSnapshot snapshot)
-      : title = snapshot.value["title"],
-        authors = List.castFrom<dynamic, String>(snapshot.value['authors']) ?? [],
-        rating = snapshot.value['averageRating'],
-        thumbnail = (snapshot.value['thumbnail']);
-//        publisher = snapshot.value['publisher'] ?? '',
-//        pages = snapshot.value['pageCount'],
-
-
-  toJson() {
-    return {
-      "title": title,
-      "thumbnail":thumbnail,
-      "pages": pages,
-      "rating":rating,
-      "publisher":publisher,
-      "authors":authors,
-      "publishedAt":publishedAt
-    };
-  }
-}

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:books2go/BookModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -12,16 +13,13 @@ class SearchBooksWidget extends StatefulWidget {
 }
 
 class _SearchBooksWidgetState extends State<SearchBooksWidget> {
-  List<Book> _items = new List();
+  List<BookModel> _items = new List();
   String uId;
 //  IconData favBorder = Icons.favorite_border;
 
   final subject = new PublishSubject<String>();
 
-//  Future<String> getCurrentUserRef() async {
-//    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-//    return user.uid.toString();
-//  }
+
   bool _isLoading = false;
 
   void _textChanged(String text) {
@@ -66,7 +64,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
 
   void _addItem(item) {
     setState(() {
-      _items.add(Book.fromJson(item));
+      _items.add(BookModel.fromJson(item));
     });
   }
 
@@ -104,7 +102,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     ));
   }
 
-  Widget _createBookItem(BuildContext context, Book book) {
+  Widget _createBookItem(BuildContext context, BookModel book) {
     return new Column(
       children: <Widget>[
         Padding(
@@ -126,7 +124,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     );
   }
 
-  Widget _createBookItemDescriptionSection(BuildContext context, Book book) {
+  Widget _createBookItemDescriptionSection(BuildContext context, BookModel book) {
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -222,63 +220,9 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     );
   }
 
-  void _favourite(Book book) {
+  void _favourite(BookModel book) {
     final _favouriteBook =
-        FirebaseDatabase.instance.reference().child('favourites').child(uId);
-    _favouriteBook.push().set(book.toJson());
-  }
-}
-
-class Book {
-  String title, thumbnail, publisher, publishedAt;
-  List<String> authors;
-  num pages, rating;
-
-  Book(
-      {this.title,
-      this.thumbnail,
-      this.pages,
-      this.rating,
-      this.publisher,
-      this.authors,
-      this.publishedAt});
-
-  Book.fromJson(dynamic book) {
-    var volumeInfo = book['volumeInfo'];
-
-    try {
-      this.title = volumeInfo['title'];
-      this.authors =
-          List.castFrom<dynamic, String>(volumeInfo['authors']) ?? [];
-      this.publisher = volumeInfo['publisher'] ?? '';
-      this.pages = volumeInfo['pageCount'];
-      this.rating = volumeInfo['averageRating'];
-
-      try {
-        this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);
-      } catch (e) {
-        this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
-        print('While setting thumbnail : ' + e.toString());
-      }
-
-      if (volumeInfo['publishedDate'] is String) {
-        var parts = volumeInfo['publishedDate'].split('-');
-        this.publishedAt = parts[0];
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  toJson() {
-    return {
-      "title": title,
-      "thumbnail": thumbnail,
-      "pages": pages,
-      "rating": rating,
-      "publisher": publisher,
-      "authors": authors,
-      "publishedAt": publishedAt
-    };
+        FirebaseDatabase.instance.reference().child(uId).child('favourites').child(book.id);
+    _favouriteBook.set(book.raw);
   }
 }
