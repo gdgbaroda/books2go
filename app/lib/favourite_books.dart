@@ -142,7 +142,8 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
   }
   _onEntryAdded(Event event) {
     setState(() {
-      _items.add(new BookModel.fromSnapshot(event.snapshot));
+      dynamic raw = event.snapshot.value;
+      _items.add(new BookModel.fromJson(raw));
     });
   }
 }

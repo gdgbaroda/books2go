@@ -5,6 +5,7 @@ class BookModel {
   List<String> authors;
   num pages, rating;
   dynamic raw;
+
   BookModel(
       {this.title,
         this.id,
@@ -23,15 +24,16 @@ class BookModel {
       this.raw = book;
       this.title = volumeInfo['title'];
       this.id = book['id'];
-      this.authors =
-          List.castFrom<dynamic, String>(volumeInfo['authors']) ?? [];
+      this.authors = List.castFrom<dynamic, String>(volumeInfo['authors']) ?? [];
       this.publisher = volumeInfo['publisher'] ?? '';
       this.pages = volumeInfo['pageCount'];
       this.rating = volumeInfo['averageRating'];
 
       try {
         this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);
-      } catch (e) {
+      }
+
+      catch (e) {
         this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
         print('While setting thumbnail : ' + e.toString());
       }
@@ -40,29 +42,9 @@ class BookModel {
         var parts = volumeInfo['publishedDate'].split('-');
         this.publishedAt = parts[0];
       }
-    } catch (e) {
+    }
+    catch (e) {
       print(e);
     }
   }
-//
-//  toJson() {
-//    return {
-//      "title": title,
-//      "id":id,
-//      "thumbnail": thumbnail,
-//      "pages": pages,
-//      "rating": rating,
-//      "publisher": publisher,
-//      "authors": authors,
-//      "publishedAt": publishedAt
-//    };
-//  }
-
-  BookModel.fromSnapshot(DataSnapshot snapshot)
-      : raw = snapshot.value;
-
-
-}
-class volumeInfo{
-
 }

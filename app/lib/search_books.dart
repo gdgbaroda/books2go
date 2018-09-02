@@ -155,7 +155,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
           onPressed: () {
             setState(() {
               _favourite(book);
-//              new Icon(Icons.favorite);
+              new Icon(Icons.favorite);
 
             });
           },
