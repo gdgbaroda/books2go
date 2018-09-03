@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:books2go/BookModel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBooksWidget extends StatefulWidget {
@@ -13,9 +17,12 @@ class SearchBooksWidget extends StatefulWidget {
 }
 
 class _SearchBooksWidgetState extends State<SearchBooksWidget> {
-  List<Book> _items = new List();
+  List<BookModel> _items = new List();
+  String uId;
+//  IconData favBorder = Icons.favorite_border;
 
   final subject = new PublishSubject<String>();
+
 
   bool _isLoading = false;
   TextEditingController textEditingController = TextEditingController(text: '');
@@ -62,7 +69,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
 
   void _addItem(item) {
     setState(() {
-      _items.add(Book.fromJson(item));
+      _items.add(BookModel.fromJson(item));
     });
   }
 
@@ -73,6 +80,9 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
         .debounce(new Duration(milliseconds: 600))
         .listen(_textChanged);
 
+    FirebaseAuth.instance.currentUser().then((user) {
+      uId = user.uid;
+    });
     if (widget.initialSearch != null) {
       textEditingController.text = widget.initialSearch;
       subject.add(widget.initialSearch);
@@ -94,7 +104,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
           decoration: new InputDecoration(
             border: InputBorder.none,
             contentPadding: EdgeInsets.all(16.0),
-            hintText: 'Sherlock Holmes, Dan Brown, Life of Pi...',
+            hintText: 'Search Books',
           ),
           onChanged: (string) => (subject.add(string)),
         ))
@@ -102,7 +112,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     ));
   }
 
-  Widget _createBookItem(BuildContext context, Book book) {
+  Widget _createBookItem(BuildContext context, BookModel book) {
     return new Column(
       children: <Widget>[
         Padding(
@@ -110,10 +120,10 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
             child: new Row(
               children: <Widget>[
                 new Image.network(book.thumbnail,
-                    height: 80.0, width: 80.0, fit: BoxFit.fitHeight),
+                    height: 120.0, width: 80.0, fit: BoxFit.fitHeight),
                 Expanded(
                     child: Container(
-                  height: 80.0,
+                  height: 120.0,
                   margin: EdgeInsets.symmetric(horizontal: 8.0),
                   child: _createBookItemDescriptionSection(context, book),
                 )),
@@ -124,7 +134,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     );
   }
 
-  Widget _createBookItemDescriptionSection(BuildContext context, Book book) {
+  Widget _createBookItemDescriptionSection(BuildContext context, BookModel book) {
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -147,7 +157,20 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
             fontSize: 13.0,
           ),
         ),
-        Spacer(),
+        IconButton(
+          padding: EdgeInsets.all(0.0),
+          alignment: Alignment.centerRight,
+          icon: new Icon(Icons.favorite_border),
+          tooltip: 'favourite the books',
+          onPressed: () {
+            setState(() {
+              _favourite(book);
+              new Icon(Icons.favorite);
+
+            });
+          },
+        ),
+//        Spacer(),
         book.rating != null
             ? Row(
                 children: <Widget>[
@@ -205,6 +228,12 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
         ),
       ),
     );
+  }
+
+  void _favourite(BookModel book) {
+    final _favouriteBook =
+        FirebaseDatabase.instance.reference().child(uId).child('favourites').child(book.id);
+    _favouriteBook.set(book.raw);
   }
 }
 
