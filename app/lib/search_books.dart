@@ -8,6 +8,10 @@ import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 
 class SearchBooksWidget extends StatefulWidget {
+  final String initialSearch;
+
+  SearchBooksWidget({Key key, this.initialSearch}) : super(key: key);
+
   @override
   State createState() => new _SearchBooksWidgetState();
 }
@@ -21,6 +25,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
 
 
   bool _isLoading = false;
+  TextEditingController textEditingController = TextEditingController(text: '');
 
   void _textChanged(String text) {
     if (text.isEmpty) {
@@ -78,6 +83,10 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     FirebaseAuth.instance.currentUser().then((user) {
       uId = user.uid;
     });
+    if (widget.initialSearch != null) {
+      textEditingController.text = widget.initialSearch;
+      subject.add(widget.initialSearch);
+    }
   }
 
   Widget _createSearchBar(BuildContext context) {
@@ -91,6 +100,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
         new Expanded(
             child: TextField(
           autofocus: true,
+          controller: textEditingController,
           decoration: new InputDecoration(
             border: InputBorder.none,
             contentPadding: EdgeInsets.all(16.0),
@@ -224,5 +234,47 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     final _favouriteBook =
         FirebaseDatabase.instance.reference().child(uId).child('favourites').child(book.id);
     _favouriteBook.set(book.raw);
+  }
+}
+
+class Book {
+  String title, thumbnail, publisher, publishedAt;
+  List<String> authors;
+  num pages, rating;
+
+  Book(
+      {this.title,
+      this.thumbnail,
+      this.pages,
+      this.rating,
+      this.publisher,
+      this.authors,
+      this.publishedAt});
+
+  Book.fromJson(dynamic book) {
+    var volumeInfo = book['volumeInfo'];
+
+    try {
+      this.title = volumeInfo['title'];
+      this.authors =
+          List.castFrom<dynamic, String>(volumeInfo['authors']) ?? [];
+      this.publisher = volumeInfo['publisher'] ?? '';
+      this.pages = volumeInfo['pageCount'];
+      this.rating = volumeInfo['averageRating'];
+
+      try {
+        this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);
+      } catch (e) {
+        this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
+        print('While setting thumbnail : ' + e.toString());
+      }
+
+      if (volumeInfo['publishedDate'] is String) {
+        var parts = volumeInfo['publishedDate'].split('-');
+        this.publishedAt = parts[0];
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }

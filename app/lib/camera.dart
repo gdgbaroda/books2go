@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'nav_drawer.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
-import 'package:image/image.dart' as ImageLibrary;
 import 'dart:isolate';
 import 'image.dart' as util;
 import 'dart:math';
+import 'package:flutter/services.dart';
+import 'search_books.dart';
 
 class CameraWidget extends StatefulWidget {
   CameraWidget({Key key}) : super(key: key);
@@ -23,8 +23,6 @@ class CameraWidgetState extends State<CameraWidget> {
   // State variables
   bool loading = true;
   bool detecting = false;
-  Widget detectingImage;
-  String detectedText;
 
   void _setLoading(loading) {
     setState(() {
@@ -32,11 +30,9 @@ class CameraWidgetState extends State<CameraWidget> {
     });
   }
 
-  void _setDetecting(detecting, Widget image, String detected) {
+  void _setDetecting(detecting) {
     setState(() {
       this.detecting = detecting;
-      this.detectingImage = image;
-      this.detectedText = detected;
     });
   }
 
@@ -54,7 +50,7 @@ class CameraWidgetState extends State<CameraWidget> {
   void initState() {
     super.initState();
     availableCameras().then((cameras) {
-      controller = CameraController(cameras[0], ResolutionPreset.low);
+      controller = CameraController(cameras[0], ResolutionPreset.high);
       controller.initialize().then((_) {
         if (mounted) {
           this._setLoading(false);
@@ -72,11 +68,7 @@ class CameraWidgetState extends State<CameraWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Camera View'),
-      ),
-      body: createBody(),
-      drawer: NavDrawer(),
+      body: createBody()
     );
   }
 
@@ -84,13 +76,12 @@ class CameraWidgetState extends State<CameraWidget> {
     try {
       String path = await getTempFilePath();
       await controller.takePicture(path);
-      _setDetecting(true, CircularProgressIndicator(), 'Detecting...');
-      List<int> bytes = await (File(path)).readAsBytes();
-      Widget image = Image.memory(bytes);
-      _setDetecting(true, image, 'Detecting...');
+      _setDetecting(true);
+      int angle = await _getImageAngle(path);
 
       var receivePort = new ReceivePort();
-      await Isolate.spawn<String>(util.rotateImage, path,
+      var map = {"path": path, "angle": angle};
+      await Isolate.spawn<Map>(util.rotateImage, map,
           onExit: receivePort.sendPort);
 
       await receivePort.first;
@@ -107,9 +98,17 @@ class CameraWidgetState extends State<CameraWidget> {
         }
       }
       detector.close();
-      _setDetecting(true, image, largestBlock?.text);
-    } catch (e) {
-      _setDetecting(false, null, null);
+
+      String search = "";
+      largestBlock.lines.forEach((line) => search += line.text.toString() + " ");
+      
+      print(search);
+
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => SearchBooksWidget(initialSearch: search)
+      ));
+    } finally {
+      _setDetecting(false);
     }
   }
 
@@ -123,17 +122,33 @@ class CameraWidgetState extends State<CameraWidget> {
       return Center(child: CircularProgressIndicator());
     } else {
       return Column(children: [
-        detectingImage ??
-            AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: CameraPreview(controller)),
+        AspectRatio(
+            aspectRatio: controller.value.aspectRatio,
+            child: CameraPreview(controller)),
         Expanded(
             child: Center(
-                child: detectedText != null
-                    ? Text(detectedText)
+                child: detecting
+                    ? CircularProgressIndicator()
                     : RaisedButton(
-                        onPressed: detectText, child: Text('Detect'))))
+                        onPressed: detectText,
+                        child: Text('SCAN'),
+                      )))
       ]);
     }
+  }
+
+  static const platform = const MethodChannel('books2go');
+
+  _getImageAngle(String path) async {
+    int imageAngle = 0;
+    try {
+      final int result =
+          await platform.invokeMethod('getImageAngle', {"path": path});
+      imageAngle = result;
+      print("Image angle: '$imageAngle'.");
+    } on PlatformException catch (e) {
+      print("Failed to get image angle: '${e.message}'.");
+    }
+    return imageAngle;
   }
 }

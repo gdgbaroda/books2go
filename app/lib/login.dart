@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth.dart';
-import 'nav_drawer.dart';
 import 'root_context.dart';
 
 class LoginWidget extends StatefulWidget {
@@ -25,6 +24,9 @@ class LoginWidgetState extends State<LoginWidget> {
     this._setLoading(true);
     await Auth.login();
     this._setLoading(false);
+
+    // Redirecting to Home
+    Navigator.of(context).pushNamed('/home');
   }
 
   @override
@@ -32,9 +34,6 @@ class LoginWidgetState extends State<LoginWidget> {
     RootContext rootContext = context.inheritFromWidgetOfExactType(RootContext);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Login'),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +41,7 @@ class LoginWidgetState extends State<LoginWidget> {
           children: this.createBody(rootContext.user),
         ),
       ),
-      drawer: NavDrawer(),
+      backgroundColor: Colors.amber,
     );
   }
 
@@ -51,17 +50,56 @@ class LoginWidgetState extends State<LoginWidget> {
     var children = <Widget>[];
 
     if (this.loading) {
-      children.add(new CircularProgressIndicator());
+      children.add(new CircularProgressIndicator(
+        valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+      ));
     } else if (user == null) {
-      children.add(this.createSignInButton());
-    } else {
-      children.add(Text("Welcome ${user.displayName} !"));
+      children.addAll(this.createLoginScreen());
     }
 
     return children;
   }
 
-  Widget createSignInButton() {
-    return RaisedButton(child: Text('SIGN IN'), onPressed: _login);
+  List<Widget> createLoginScreen() {
+    return <Widget>[
+      Icon(
+        Icons.book,
+        size: 80.0,
+        color: Colors.white,
+      ),
+      Container(
+        margin: const EdgeInsets.only(top: 10.0),
+        child: Text('Books2Go',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 25.0,
+                color: Colors.white)),
+      ),
+//      Container(
+//        margin: const EdgeInsets.only(top: 6.0),
+//        child: Text('Your friendly book manager',
+//            style: TextStyle(fontSize: 15.0, color: Colors.black87)),
+//      ),
+      Container(
+        margin: const EdgeInsets.only(top: 32.0),
+        child: RaisedButton(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                margin: const EdgeInsets.only(right: 4.0),
+                child: Icon(Icons.account_circle),
+              ),
+              Text('Sign-In with Google'),
+            ],
+          ),
+          color: Colors.white,
+          textColor: Colors.black54,
+          splashColor: Color.fromARGB(255, 222, 222, 222),
+          onPressed: _login,
+        ),
+      ),
+    ];
   }
 }

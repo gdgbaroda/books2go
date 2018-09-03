@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'login.dart';
+import 'home.dart';
 import 'camera.dart';
 import 'root_context.dart';
 import 'auth.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(new App());
 
@@ -39,6 +41,11 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return RootContext(
       user: user,
       child: MaterialApp(
@@ -46,7 +53,7 @@ class _AppState extends State<App> {
           theme: new ThemeData(
             primarySwatch: Colors.amber,
           ),
-          home: new LoginWidget(),
+          home: user == null ? new LoginWidget() : new HomeWidget(),
           routes: <String, WidgetBuilder>{
             '/camera': (BuildContext context) => CameraWidget(),
             '/search_books': (context) => SearchBooksWidget(),
