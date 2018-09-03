@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'login.dart';
+import 'home.dart';
 import 'camera.dart';
 import 'root_context.dart';
 import 'auth.dart';
@@ -51,7 +52,7 @@ class _AppState extends State<App> {
           theme: new ThemeData(
             primarySwatch: Colors.amber,
           ),
-          home: new LoginWidget(),
+          home: user == null ? new LoginWidget() : new HomeWidget(),
           routes: <String, WidgetBuilder>{
             '/camera': (BuildContext context) => CameraWidget(),
             '/search_books': (context) => SearchBooksWidget()
