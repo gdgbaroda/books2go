@@ -6,6 +6,7 @@ class Auth {
   static final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   static final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
+  /// Performs Google Sign-In.
   static Future login() async {
     try {
       await _googleSignIn.disconnect();
@@ -21,6 +22,7 @@ class Auth {
     }
   }
 
+  /// Logs out user from app.
   static Future logout() async {
     return firebaseAuth.signOut();
   }

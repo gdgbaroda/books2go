@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:io';
 
 class FavBooksWidget extends StatefulWidget {
   @override
@@ -15,24 +14,24 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
   String uId;
   bool _isLoading = false;
 
-  _FavBooksWidgetState(){
+  _FavBooksWidgetState() {
     FirebaseAuth.instance.currentUser().then((user) {
-      uId= user.uid;
-      final mainReference = FirebaseDatabase.instance.reference().child(uId).child('favourites');
+      uId = user.uid;
+
+      // Adding listener for favourite books.
+      final mainReference =
+          FirebaseDatabase.instance.reference().child(uId).child('favourites');
       mainReference.onChildAdded.listen(_onEntryAdded);
     });
-
   }
 
   @override
-  void initState() {
-
-  }
+  void initState() {}
 
   @override
   Widget build(BuildContext context) {
-
-    Widget _createBookItemDescriptionSection(BuildContext context, BookModel book) {
+    Widget _createBookItemDescriptionSection(
+        BuildContext context, BookModel book) {
       return Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -57,30 +56,30 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
           ),
           IconButton(
             padding: EdgeInsets.all(0.0),
-            alignment: Alignment.centerRight,
+            alignment: Alignment.centerLeft,
             icon: new Icon(Icons.favorite),
-            tooltip: 'favourite the books', onPressed: () {},
+            tooltip: 'favourite the books',
+            onPressed: () {},
           ),
-
           book.rating != null
               ? Row(
-            children: <Widget>[
-              Icon(
-                Icons.star,
-                size: 12.0,
-                color: Colors.black45,
-              ),
-              Text(
-                book.rating.toString(),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.black45,
-                  fontSize: 12.0,
-                ),
-              )
-            ],
-          )
+                  children: <Widget>[
+                    Icon(
+                      Icons.star,
+                      size: 12.0,
+                      color: Colors.black45,
+                    ),
+                    Text(
+                      book.rating.toString(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.black45,
+                        fontSize: 12.0,
+                      ),
+                    )
+                  ],
+                )
               : Container()
         ],
       );
@@ -97,10 +96,10 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
                       height: 120.0, width: 80.0, fit: BoxFit.fitHeight),
                   Expanded(
                       child: Container(
-                        height: 120.0,
-                        margin: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: _createBookItemDescriptionSection(context, book),
-                      )),
+                    height: 120.0,
+                    margin: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: _createBookItemDescriptionSection(context, book),
+                  )),
                 ],
               )),
           new Divider()
@@ -113,39 +112,40 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
         title: Text('Favourite Books'),
       ),
       body: new Container(
-      padding:
-      new EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
-      child: new Column(
-      children: <Widget>[
-      new Expanded(
-      child: Card(
-      child: _isLoading
-      ? Container(
-      child: Center(child: CircularProgressIndicator()),
-      padding: EdgeInsets.all(16.0),
-      )
-          : new ListView.builder(
-        reverse: true,
-      physics: BouncingScrollPhysics(),
-      padding: new EdgeInsets.all(8.0),
-    itemCount: _items.length,
-    itemBuilder: (BuildContext context, int index) {
-    return _createBookItem(context, _items[index]);
-    },
-    ),
-    ),
-    )
-    ],
-    ),
-    ),
+        padding:
+            new EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
+        child: new Column(
+          children: <Widget>[
+            new Expanded(
+              child: Card(
+                child: _isLoading
+                    ? Container(
+                        child: Center(child: CircularProgressIndicator()),
+                        padding: EdgeInsets.all(16.0),
+                      )
+                    : new ListView.builder(
+                        reverse: false,
+                        physics: BouncingScrollPhysics(),
+                        padding: new EdgeInsets.all(8.0),
+                        itemCount: _items.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return _createBookItem(context, _items[index]);
+                        },
+                      ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
+
   _onEntryAdded(Event event) {
-    setState(() {
-      dynamic raw = event.snapshot.value;
-      _items.add(new BookModel.fromJson(raw));
-    });
+    if (this.mounted) {
+      setState(() {
+        dynamic raw = event.snapshot.value;
+        _items.add(new BookModel.fromJson(raw));
+      });
+    }
   }
 }
-
-

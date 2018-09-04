@@ -18,11 +18,10 @@ class SearchBooksWidget extends StatefulWidget {
 
 class _SearchBooksWidgetState extends State<SearchBooksWidget> {
   List<BookModel> _items = new List();
+  List<String> _favouriteBookIds = new List();
   String uId;
-//  IconData favBorder = Icons.favorite_border;
 
   final subject = new PublishSubject<String>();
-
 
   bool _isLoading = false;
   TextEditingController textEditingController = TextEditingController(text: '');
@@ -32,13 +31,21 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
       setState(() {
         _isLoading = false;
       });
+
+      // Removing list data.
       _clearList();
+
       return;
     }
+
     setState(() {
       _isLoading = true;
     });
+
+    // Removing list data.
     _clearList();
+
+    // Calling Google Books api.
     http
         .get("https://www.googleapis.com/books/v1/volumes?q=$text")
         .then((response) => response.body)
@@ -61,6 +68,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     });
   }
 
+  /// Removes list data.
   void _clearList() {
     setState(() {
       _items.clear();
@@ -69,7 +77,18 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
 
   void _addItem(item) {
     setState(() {
-      _items.add(BookModel.fromJson(item));
+      var bookModel = BookModel.fromJson(item);
+
+      // Checking whether searched book is already added in favourite books or not
+      for (var bookId in _favouriteBookIds) {
+        if (bookId == bookModel.id) {
+          bookModel.isFavourite = true;
+
+          break;
+        }
+      }
+
+      _items.add(bookModel);
     });
   }
 
@@ -82,7 +101,32 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
 
     FirebaseAuth.instance.currentUser().then((user) {
       uId = user.uid;
+
+      // Getting list of favourite books of user
+      FirebaseDatabase.instance
+          .reference()
+          .child(uId)
+          .child('favourites')
+          .onValue
+          .listen((Event event) {
+        // Removing old favourite book ids
+        _favouriteBookIds.clear();
+
+        // Adding favourite book ids to list (if any)
+        if (event.snapshot.value != null) {
+          Map map = event.snapshot.value;
+
+          void iterateMapEntry(key, value) {
+            map[key] = value;
+
+            _favouriteBookIds.add(value['id'] as String);
+          }
+
+          map.forEach(iterateMapEntry);
+        }
+      }, onError: (Object o) {});
     });
+
     if (widget.initialSearch != null) {
       textEditingController.text = widget.initialSearch;
       subject.add(widget.initialSearch);
@@ -134,7 +178,8 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     );
   }
 
-  Widget _createBookItemDescriptionSection(BuildContext context, BookModel book) {
+  Widget _createBookItemDescriptionSection(
+      BuildContext context, BookModel book) {
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -159,15 +204,20 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
         ),
         IconButton(
           padding: EdgeInsets.all(0.0),
-          alignment: Alignment.centerRight,
-          icon: new Icon(Icons.favorite_border),
-          tooltip: 'favourite the books',
+          alignment: Alignment.centerLeft,
+          icon: book.isFavourite
+              ? new Icon(Icons.favorite)
+              : new Icon(Icons.favorite_border),
+          tooltip: 'Add to favourites',
           onPressed: () {
-            setState(() {
-              _favourite(book);
-              new Icon(Icons.favorite);
+            if (this.mounted) {
+              setState(() {
+                // Changing state of isFavourite
+                book.isFavourite = !book.isFavourite;
 
-            });
+                _favourite(book, book.isFavourite);
+              });
+            }
           },
         ),
 //        Spacer(),
@@ -230,10 +280,23 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     );
   }
 
-  void _favourite(BookModel book) {
-    final _favouriteBook =
-        FirebaseDatabase.instance.reference().child(uId).child('favourites').child(book.id);
-    _favouriteBook.set(book.raw);
+  /// Adds/removes book from user's favourite list.
+  /// [book] contains book data.
+  /// [addToFavourites] indicates whether to add or remove book from favourite list.
+  void _favourite(BookModel book, bool addToFavourites) {
+    final _favouriteBook = FirebaseDatabase.instance
+        .reference()
+        .child(uId)
+        .child('favourites')
+        .child(book.id);
+
+    // Adding book in favourite list.
+    if (addToFavourites) {
+      _favouriteBook.set(book.raw);
+    } // Removing book from favourite list.
+    else {
+      _favouriteBook.remove();
+    }
   }
 }
 
@@ -241,6 +304,7 @@ class Book {
   String title, thumbnail, publisher, publishedAt;
   List<String> authors;
   num pages, rating;
+  bool isFavourite = false;
 
   Book(
       {this.title,
@@ -249,7 +313,8 @@ class Book {
       this.rating,
       this.publisher,
       this.authors,
-      this.publishedAt});
+      this.publishedAt,
+      this.isFavourite});
 
   Book.fromJson(dynamic book) {
     var volumeInfo = book['volumeInfo'];
@@ -265,7 +330,9 @@ class Book {
       try {
         this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);
       } catch (e) {
+        // Setting default image on error.
         this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
+
         print('While setting thumbnail : ' + e.toString());
       }
 

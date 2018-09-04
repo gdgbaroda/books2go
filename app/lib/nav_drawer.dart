@@ -12,25 +12,33 @@ class _NavDrawerState extends State<NavDrawer> {
   void _popToRoot() {
     Navigator.of(context).popUntil((_) => !Navigator.of(context).canPop());
   }
-  
+
+  /// Opens Camera screen.
   void _openCamera() {
     Navigator.of(context).pushNamed('/camera');
   }
-  void _searchbook(){
+
+  /// Opens Search Books screen.
+  void _searchBooks() {
     Navigator.of(context).pushNamed('/search_books');
   }
-  void _favbbook(){
+
+  /// Opens Favourite Books screen.
+  void _favouriteBooks() {
     Navigator.of(context).pushNamed('/favourite_books');
   }
-  void _logout() {
-    _popToRoot();
-    Auth.logout();
-  }
 
+  /// Completes login process.
   void _login() async {
     this._setLoading(true);
     await Auth.login();
     this._setLoading(false);
+  }
+
+  /// Logs out user from app.
+  void _logout() {
+    _popToRoot();
+    Auth.logout();
   }
 
   void _setLoading(value) {
@@ -85,19 +93,18 @@ class _NavDrawerState extends State<NavDrawer> {
         ListTile(
           leading: Icon(Icons.book),
           title: const Text('Search Books'),
-          onTap: _searchbook,
+          onTap: _searchBooks,
         ),
         ListTile(
           leading: Icon(Icons.favorite),
-          title: const Text('fav Books'),
-          onTap: _favbbook,
+          title: const Text('Favourite Books'),
+          onTap: _favouriteBooks,
         ),
         ListTile(
           leading: Icon(Icons.exit_to_app),
           title: const Text('Logout'),
           onTap: _logout,
         ),
-
       ]);
     } else {
       widgets.add(ListTile(
