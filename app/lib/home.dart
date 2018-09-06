@@ -11,7 +11,6 @@ class HomeWidget extends StatefulWidget {
 }
 
 class HomeWidgetState extends State<HomeWidget> {
-
   @override
   Widget build(BuildContext context) {
     RootContext rootContext = context.inheritFromWidgetOfExactType(RootContext);

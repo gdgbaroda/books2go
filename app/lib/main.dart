@@ -30,7 +30,8 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    userUpdateSubscription = Auth.firebaseAuth.onAuthStateChanged.listen(_setUser);
+    userUpdateSubscription =
+        Auth.firebaseAuth.onAuthStateChanged.listen(_setUser);
   }
 
   @override
@@ -57,7 +58,8 @@ class _AppState extends State<App> {
           routes: <String, WidgetBuilder>{
             '/camera': (BuildContext context) => CameraWidget(),
             '/search_books': (context) => SearchBooksWidget(),
-            '/favourite_books': (context) => FavBooksWidget()
+            '/favourite_books': (context) => FavBooksWidget(),
+            '/home': (context) => HomeWidget()
           }),
     );
   }

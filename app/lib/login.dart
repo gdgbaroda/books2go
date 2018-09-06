@@ -14,12 +14,16 @@ class LoginWidgetState extends State<LoginWidget> {
   // State variables
   bool loading = false;
 
+  /// Sets progressbar visibility.
   void _setLoading(loading) {
-    setState(() {
-      this.loading = loading;
-    });
+    if (this.mounted) {
+      setState(() {
+        this.loading = loading;
+      });
+    }
   }
 
+  /// Completes login process and redirects to Home screen.
   void _login() async {
     this._setLoading(true);
     await Auth.login();
@@ -75,11 +79,6 @@ class LoginWidgetState extends State<LoginWidget> {
                 fontSize: 25.0,
                 color: Colors.white)),
       ),
-//      Container(
-//        margin: const EdgeInsets.only(top: 6.0),
-//        child: Text('Your friendly book manager',
-//            style: TextStyle(fontSize: 15.0, color: Colors.black87)),
-//      ),
       Container(
         margin: const EdgeInsets.only(top: 32.0),
         child: RaisedButton(

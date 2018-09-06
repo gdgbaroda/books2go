@@ -24,26 +24,33 @@ class CameraWidgetState extends State<CameraWidget> {
   bool loading = true;
   bool detecting = false;
 
+  /// Sets progressbar visibility.
   void _setLoading(loading) {
     setState(() {
       this.loading = loading;
     });
   }
 
+  /// Changes state to detecting.
   void _setDetecting(detecting) {
     setState(() {
       this.detecting = detecting;
     });
   }
 
+  /// Returns image path where captured image will be stored.
   Future<String> getTempFilePath() async {
     var tempFilePath =
         (await getTemporaryDirectory()).createTempSync('books2go').path;
     tempFilePath = '$tempFilePath/test.jpg';
+
     File file = File(tempFilePath);
+
+    // Deletes existing file (if available)
     if (file.existsSync()) {
       file.deleteSync();
     }
+
     return tempFilePath;
   }
 
@@ -67,25 +74,31 @@ class CameraWidgetState extends State<CameraWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: createBody()
-    );
+    return Scaffold(body: createBody());
   }
 
+  /// Captures image and detects text from it.
   void detectText() async {
     try {
+      // Capturing image and storing it at specified path.
       String path = await getTempFilePath();
       await controller.takePicture(path);
+
       _setDetecting(true);
+
+      // Getting image angle.
       int angle = await _getImageAngle(path);
 
       var receivePort = new ReceivePort();
       var map = {"path": path, "angle": angle};
+
+      // Rotating image in correct orientation (if rotated).
       await Isolate.spawn<Map>(util.rotateImage, map,
           onExit: receivePort.sendPort);
 
       await receivePort.first;
 
+      // Reading text from image.
       FirebaseVisionImage visionImage = FirebaseVisionImage.fromFilePath(path);
       TextDetector detector = FirebaseVision.instance.getTextDetector();
       List<TextBlock> blocks = await detector.detectInImage(visionImage);
@@ -100,13 +113,12 @@ class CameraWidgetState extends State<CameraWidget> {
       detector.close();
 
       String search = "";
-      largestBlock.lines.forEach((line) => search += line.text.toString() + " ");
-      
-      print(search);
+      largestBlock.lines
+          .forEach((line) => search += line.text.toString() + " ");
 
+      // Redirecting to Search Book screen with found text.
       Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => SearchBooksWidget(initialSearch: search)
-      ));
+          builder: (context) => SearchBooksWidget(initialSearch: search)));
     } finally {
       _setDetecting(false);
     }
@@ -116,7 +128,7 @@ class CameraWidgetState extends State<CameraWidget> {
     return box.width * box.height;
   }
 
-  /// Creates the main body to show using the state variable values
+  /// Creates the main body to show using the state variable values.
   Widget createBody() {
     if (this.loading) {
       return Center(child: CircularProgressIndicator());
@@ -139,13 +151,13 @@ class CameraWidgetState extends State<CameraWidget> {
 
   static const platform = const MethodChannel('books2go');
 
+  /// Calls native method to get image angle.
   _getImageAngle(String path) async {
     int imageAngle = 0;
     try {
       final int result =
           await platform.invokeMethod('getImageAngle', {"path": path});
       imageAngle = result;
-      print("Image angle: '$imageAngle'.");
     } on PlatformException catch (e) {
       print("Failed to get image angle: '${e.message}'.");
     }
