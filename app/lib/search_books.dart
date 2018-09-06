@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:books2go/BookModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -49,7 +48,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     http
         .get("https://www.googleapis.com/books/v1/volumes?q=$text")
         .then((response) => response.body)
-        .then(JSON.decode)
+        .then(JsonDecoder().convert)
         .then((map) => map["items"])
         .then((list) {
           list.forEach(_addItem);
