@@ -56,6 +56,7 @@ class CameraWidgetState extends State<CameraWidget> {
 
   void initState() {
     super.initState();
+
     availableCameras().then((cameras) {
       controller = CameraController(cameras[0], ResolutionPreset.high);
       controller.initialize().then((_) {
@@ -134,17 +135,20 @@ class CameraWidgetState extends State<CameraWidget> {
       return Center(child: CircularProgressIndicator());
     } else {
       return Column(children: [
-        AspectRatio(
-            aspectRatio: controller.value.aspectRatio,
-            child: CameraPreview(controller)),
-        Expanded(
-            child: Center(
-                child: detecting
-                    ? CircularProgressIndicator()
-                    : RaisedButton(
-                        onPressed: detectText,
-                        child: Text('SCAN'),
-                      )))
+        Expanded(child: CameraPreview(controller)),
+        Container(
+          color: Colors.white,
+          constraints: BoxConstraints.expand(height: 100.0),
+          child: Center(
+              child: detecting
+                  ? CircularProgressIndicator()
+                  : RaisedButton(
+                      onPressed: detectText,
+                      child: Text('Scan'),
+                      color: Colors.amber,
+                      textColor: Colors.white,
+                    )),
+        ),
       ]);
     }
   }
