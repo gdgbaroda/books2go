@@ -57,7 +57,8 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
           IconButton(
             padding: EdgeInsets.all(0.0),
             alignment: Alignment.centerLeft,
-            icon: new Icon(Icons.favorite),
+            icon:
+                new Icon(Icons.favorite, color: Color.fromARGB(255, 254, 0, 0)),
             tooltip: 'favourite the books',
             onPressed: () {},
           ),

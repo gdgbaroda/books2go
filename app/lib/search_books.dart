@@ -205,7 +205,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
           padding: EdgeInsets.all(0.0),
           alignment: Alignment.centerLeft,
           icon: book.isFavourite
-              ? new Icon(Icons.favorite)
+              ? new Icon(Icons.favorite, color: Color.fromARGB(255, 254, 0, 0))
               : new Icon(Icons.favorite_border),
           tooltip: 'Add to favourites',
           onPressed: () {
@@ -214,7 +214,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
                 // Changing state of isFavourite
                 book.isFavourite = !book.isFavourite;
 
-                _favourite(book, book.isFavourite);
+                _favourite(context, book, book.isFavourite);
               });
             }
           },
@@ -282,7 +282,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
   /// Adds/removes book from user's favourite list.
   /// [book] contains book data.
   /// [addToFavourites] indicates whether to add or remove book from favourite list.
-  void _favourite(BookModel book, bool addToFavourites) {
+  void _favourite(BuildContext context, BookModel book, bool addToFavourites) {
     final _favouriteBook = FirebaseDatabase.instance
         .reference()
         .child(uId)
@@ -292,9 +292,13 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     // Adding book in favourite list.
     if (addToFavourites) {
       _favouriteBook.set(book.raw);
+
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Added to favourite books.')));
     } // Removing book from favourite list.
     else {
       _favouriteBook.remove();
+
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Removed from favourite books.')));
     }
   }
 }

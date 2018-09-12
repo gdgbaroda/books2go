@@ -87,7 +87,7 @@ class _NavDrawerState extends State<NavDrawer> {
       widgets.addAll(<Widget>[
         ListTile(
           leading: Icon(Icons.photo_camera),
-          title: const Text('Open Camera'),
+          title: const Text('Scan A Book'),
           onTap: _openCamera,
         ),
         ListTile(
