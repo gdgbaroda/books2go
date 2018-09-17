@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'package:books2go/BookModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
+import 'book_card.dart';
+import 'BookModel.dart';
 
 class SearchBooksWidget extends StatefulWidget {
   final String initialSearch;
@@ -18,7 +19,7 @@ class SearchBooksWidget extends StatefulWidget {
 class _SearchBooksWidgetState extends State<SearchBooksWidget> {
   List<BookModel> _items = new List();
   List<String> _favouriteBookIds = new List();
-  String uId;
+  String uId, search;
 
   final subject = new PublishSubject<String>();
 
@@ -29,6 +30,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     if (text.isEmpty) {
       setState(() {
         _isLoading = false;
+        search = null;
       });
 
       // Removing list data.
@@ -39,6 +41,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
 
     setState(() {
       _isLoading = true;
+      search = text;
     });
 
     // Removing list data.
@@ -75,6 +78,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
   }
 
   void _addItem(item) {
+    print(item);
     setState(() {
       var bookModel = BookModel.fromJson(item);
 
@@ -155,95 +159,6 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     ));
   }
 
-  Widget _createBookItem(BuildContext context, BookModel book) {
-    return new Column(
-      children: <Widget>[
-        Padding(
-            padding: new EdgeInsets.all(8.0),
-            child: new Row(
-              children: <Widget>[
-                new Image.network(book.thumbnail,
-                    height: 120.0, width: 80.0, fit: BoxFit.fitHeight),
-                Expanded(
-                    child: Container(
-                  height: 120.0,
-                  margin: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: _createBookItemDescriptionSection(context, book),
-                )),
-              ],
-            )),
-        new Divider()
-      ],
-    );
-  }
-
-  Widget _createBookItemDescriptionSection(
-      BuildContext context, BookModel book) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          book.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16.0,
-          ),
-        ),
-        Text(
-          book.authors.join(', '),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 13.0,
-          ),
-        ),
-        IconButton(
-          padding: EdgeInsets.all(0.0),
-          alignment: Alignment.centerLeft,
-          icon: book.isFavourite
-              ? new Icon(Icons.favorite, color: Color.fromARGB(255, 254, 0, 0))
-              : new Icon(Icons.favorite_border),
-          tooltip: 'Add to favourites',
-          onPressed: () {
-            if (this.mounted) {
-              setState(() {
-                // Changing state of isFavourite
-                book.isFavourite = !book.isFavourite;
-
-                _favourite(context, book, book.isFavourite);
-              });
-            }
-          },
-        ),
-//        Spacer(),
-        book.rating != null
-            ? Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.star,
-                    size: 12.0,
-                    color: Colors.black45,
-                  ),
-                  Text(
-                    book.rating.toString(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.black45,
-                      fontSize: 12.0,
-                    ),
-                  )
-                ],
-              )
-            : Container()
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -259,18 +174,7 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
             _createSearchBar(context),
             new Expanded(
               child: Card(
-                child: _isLoading
-                    ? Container(
-                        child: Center(child: CircularProgressIndicator()),
-                        padding: EdgeInsets.all(16.0),
-                      )
-                    : new ListView.builder(
-                        padding: new EdgeInsets.all(8.0),
-                        itemCount: _items.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return _createBookItem(context, _items[index]);
-                        },
-                      ),
+                child: _searchResults(),
               ),
             )
           ],
@@ -279,72 +183,28 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
     );
   }
 
-  /// Adds/removes book from user's favourite list.
-  /// [book] contains book data.
-  /// [addToFavourites] indicates whether to add or remove book from favourite list.
-  void _favourite(BuildContext context, BookModel book, bool addToFavourites) {
-    final _favouriteBook = FirebaseDatabase.instance
-        .reference()
-        .child(uId)
-        .child('favourites')
-        .child(book.id);
-
-    // Adding book in favourite list.
-    if (addToFavourites) {
-      _favouriteBook.set(book.raw);
-
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Added to favourite books.')));
-    } // Removing book from favourite list.
-    else {
-      _favouriteBook.remove();
-
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Removed from favourite books.')));
-    }
-  }
-}
-
-class Book {
-  String title, thumbnail, publisher, publishedAt;
-  List<String> authors;
-  num pages, rating;
-  bool isFavourite = false;
-
-  Book(
-      {this.title,
-      this.thumbnail,
-      this.pages,
-      this.rating,
-      this.publisher,
-      this.authors,
-      this.publishedAt,
-      this.isFavourite});
-
-  Book.fromJson(dynamic book) {
-    var volumeInfo = book['volumeInfo'];
-
-    try {
-      this.title = volumeInfo['title'];
-      this.authors =
-          List.castFrom<dynamic, String>(volumeInfo['authors']) ?? [];
-      this.publisher = volumeInfo['publisher'] ?? '';
-      this.pages = volumeInfo['pageCount'];
-      this.rating = volumeInfo['averageRating'];
-
-      try {
-        this.thumbnail = (volumeInfo['imageLinks']['smallThumbnail']);
-      } catch (e) {
-        // Setting default image on error.
-        this.thumbnail = 'https://placehold.it/100x100?text=No+Image';
-
-        print('While setting thumbnail : ' + e.toString());
+  Widget _searchResults() {
+    if (_isLoading) {
+      return Container(
+        child: Center(child: CircularProgressIndicator()),
+        padding: EdgeInsets.all(16.0),
+      );
+    } else {
+      if (_items.length == 0) {
+        return Container(
+          child: Center(
+            child: Text(search != null?'Oops! No Results':'Enter to search'),
+          ),
+        );
+      } else {
+        return ListView.builder(
+          padding: new EdgeInsets.all(8.0),
+          itemCount: _items.length,
+          itemBuilder: (BuildContext context, int index) {
+            return BookCard(_items[index], _items[index].isFavourite);
+          },
+        );
       }
-
-      if (volumeInfo['publishedDate'] is String) {
-        var parts = volumeInfo['publishedDate'].split('-');
-        this.publishedAt = parts[0];
-      }
-    } catch (e) {
-      print(e);
     }
   }
 }

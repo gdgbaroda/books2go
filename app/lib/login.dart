@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth.dart';
 import 'root_context.dart';
+import 'colors.dart';
 
 class LoginWidget extends StatefulWidget {
   LoginWidget({Key key}) : super(key: key);
@@ -45,7 +46,7 @@ class LoginWidgetState extends State<LoginWidget> {
           children: this.createBody(rootContext.user),
         ),
       ),
-      backgroundColor: Colors.amber,
+      backgroundColor: kPrimaryColor,
     );
   }
 
@@ -93,9 +94,6 @@ class LoginWidgetState extends State<LoginWidget> {
               Text('Sign-In with Google'),
             ],
           ),
-          color: Colors.white,
-          textColor: Colors.black54,
-          splashColor: Color.fromARGB(255, 222, 222, 222),
           onPressed: _login,
         ),
       ),

@@ -9,6 +9,7 @@ import 'camera.dart';
 import 'root_context.dart';
 import 'auth.dart';
 import 'package:flutter/services.dart';
+import 'colors.dart';
 
 void main() => runApp(new App());
 
@@ -51,15 +52,17 @@ class _AppState extends State<App> {
       user: user,
       child: MaterialApp(
           title: 'Books2Go',
-          theme: new ThemeData(
-            primarySwatch: Colors.amber,
+          theme: ThemeData.light().copyWith(
+            accentColor: kSecondaryColor,
+            primaryColor: kPrimaryColor,
+            buttonColor: kPrimaryColorLight,
+            buttonTheme: ThemeData.light().buttonTheme.copyWith()
           ),
           home: user == null ? new LoginWidget() : new HomeWidget(),
           routes: <String, WidgetBuilder>{
             '/camera': (BuildContext context) => CameraWidget(),
-            '/search_books': (context) => SearchBooksWidget(),
-            '/favourite_books': (context) => FavBooksWidget(),
-            '/home': (context) => HomeWidget()
+            '/search': (BuildContext context) => SearchBooksWidget(),
+            '/home': (BuildContext context) => HomeWidget()
           }),
     );
   }

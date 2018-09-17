@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'nav_drawer.dart';
-import 'root_context.dart';
+import 'favourite_books.dart';
 
 class HomeWidget extends StatefulWidget {
   HomeWidget({Key key}) : super(key: key);
@@ -13,35 +12,28 @@ class HomeWidget extends StatefulWidget {
 class HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
-    RootContext rootContext = context.inheritFromWidgetOfExactType(RootContext);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Books2Go'),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.search), onPressed: () => _searchBook())
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: this.createWelcomeScreen(rootContext.user),
-        ),
-      ),
+      body: FavBooksWidget(),
       drawer: NavDrawer(),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: Icon(Icons.camera),
+        onPressed: () => _scanBook(),
+        label: Text('SCAN BOOK', style: TextStyle(letterSpacing: 0.0,),),
+      ),
     );
   }
 
-  List<Widget> createWelcomeScreen(FirebaseUser user) {
-    return <Widget>[
-      Icon(
-        Icons.tag_faces,
-        size: 100.0,
-        color: Colors.amber,
-      ),
-      Container(
-        margin: const EdgeInsets.only(top: 10.0),
-        child: Text("Welcome ${user.displayName}!",
-            style: TextStyle(fontSize: 15.0, color: Colors.black87)),
-      ),
-    ];
+  void _scanBook() {
+    Navigator.of(context).pushNamed('/camera');
+  }
+
+  void _searchBook() {
+    Navigator.of(context).pushNamed('/search');
   }
 }

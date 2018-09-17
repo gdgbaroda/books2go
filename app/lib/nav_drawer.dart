@@ -13,41 +13,11 @@ class _NavDrawerState extends State<NavDrawer> {
     Navigator.of(context).popUntil((_) => !Navigator.of(context).canPop());
   }
 
-  /// Opens Camera screen.
-  void _openCamera() {
-    Navigator.of(context).pushNamed('/camera');
-  }
-
-  /// Opens Search Books screen.
-  void _searchBooks() {
-    Navigator.of(context).pushNamed('/search_books');
-  }
-
-  /// Opens Favourite Books screen.
-  void _favouriteBooks() {
-    Navigator.of(context).pushNamed('/favourite_books');
-  }
-
-  /// Completes login process.
-  void _login() async {
-    this._setLoading(true);
-    await Auth.login();
-    this._setLoading(false);
-  }
-
   /// Logs out user from app.
   void _logout() {
     _popToRoot();
     Auth.logout();
   }
-
-  void _setLoading(value) {
-    setState(() {
-      this.loading = value;
-    });
-  }
-
-  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -75,46 +45,21 @@ class _NavDrawerState extends State<NavDrawer> {
     }
 
     return UserAccountsDrawerHeader(
-        accountEmail: user?.email == null ? null : Text(user.email),
-        accountName: Text(user?.displayName ?? 'Signed Out'),
+        accountEmail: Text(user?.email ?? ''),
+        accountName: Text(user?.displayName ?? ''),
         currentAccountPicture: picture);
   }
 
   List<Widget> createDrawerBody(FirebaseUser user) {
     List<Widget> widgets = [];
 
-    if (user != null) {
-      widgets.addAll(<Widget>[
-        ListTile(
-          leading: Icon(Icons.photo_camera),
-          title: const Text('Scan A Book'),
-          onTap: _openCamera,
-        ),
-        ListTile(
-          leading: Icon(Icons.book),
-          title: const Text('Search Books'),
-          onTap: _searchBooks,
-        ),
-        ListTile(
-          leading: Icon(Icons.favorite),
-          title: const Text('Favourite Books'),
-          onTap: _favouriteBooks,
-        ),
-        ListTile(
-          leading: Icon(Icons.exit_to_app),
-          title: const Text('Logout'),
-          onTap: _logout,
-        ),
-      ]);
-    } else {
-      widgets.add(ListTile(
-        leading: loading ? CircularProgressIndicator() : Icon(Icons.launch),
-        title: Text(loading ? 'Please wait...' : 'Login'),
-        onTap: _login,
-        enabled: !loading,
-        selected: loading,
-      ));
-    }
+    widgets.addAll(<Widget>[
+      ListTile(
+        leading: Icon(Icons.exit_to_app),
+        title: const Text('Logout'),
+        onTap: _logout,
+      ),
+    ]);
 
     return widgets;
   }

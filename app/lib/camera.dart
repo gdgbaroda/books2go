@@ -156,7 +156,6 @@ class CameraWidgetState extends State<CameraWidget> {
                     : RaisedButton(
                         onPressed: detectText,
                         child: Text('Scan'),
-                        color: Colors.amber,
                         textColor: Colors.white,
                       )),
           ))
