@@ -134,22 +134,34 @@ class CameraWidgetState extends State<CameraWidget> {
     if (this.loading) {
       return Center(child: CircularProgressIndicator());
     } else {
-      return Column(children: [
-        Expanded(child: CameraPreview(controller)),
-        Container(
-          color: Colors.white,
-          constraints: BoxConstraints.expand(height: 100.0),
-          child: Center(
-              child: detecting
-                  ? CircularProgressIndicator()
-                  : RaisedButton(
-                      onPressed: detectText,
-                      child: Text('Scan'),
-                      color: Colors.amber,
-                      textColor: Colors.white,
-                    )),
-        ),
-      ]);
+      return Stack(
+        children: <Widget>[
+          SizedBox.expand(
+              child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              height: controller.value.previewSize.width,
+              width: controller.value.previewSize.height,
+              child: CameraPreview(controller),
+            ),
+          )),
+          Align(
+            alignment: Alignment.bottomCenter,
+          child: Container(
+            color: Colors.white,
+            constraints: BoxConstraints.expand(height: 100.0),
+            child: Center(
+                child: detecting
+                    ? CircularProgressIndicator()
+                    : RaisedButton(
+                        onPressed: detectText,
+                        child: Text('Scan'),
+                        color: Colors.amber,
+                        textColor: Colors.white,
+                      )),
+          ))
+        ],
+      );
     }
   }
 
