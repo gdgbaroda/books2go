@@ -148,15 +148,17 @@ class CameraWidgetState extends State<CameraWidget> {
           Align(
             alignment: Alignment.bottomCenter,
           child: Container(
-            color: Colors.white,
             constraints: BoxConstraints.expand(height: 100.0),
             child: Center(
                 child: detecting
-                    ? CircularProgressIndicator()
-                    : RaisedButton(
+                    ? CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                    )
+                    : FloatingActionButton.extended(
+                      backgroundColor: Colors.white,
                         onPressed: detectText,
-                        child: Text('Scan'),
-                        textColor: Colors.white,
+                        icon: Icon(Icons.camera, color: Theme.of(context).accentColor,),
+                        label:  Text('SCAN', style: TextStyle(letterSpacing: 0.0, color: Colors.black54),),
                       )),
           ))
         ],
