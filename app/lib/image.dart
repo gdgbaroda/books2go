@@ -7,16 +7,22 @@ rotateImage(Map map) async {
 
   File file = File(path);
 
-  //print('decode start');
-  List<int> bytes = await file.readAsBytes();
-  //print('bytes : ${bytes.length}');
-  Image image = decodeJpg(bytes);
-  //print('decode end');
+  print('decode start');
+  print(path);
 
-  image = copyRotate(image, angle);
-  //print(' rotate end');
+  try {
+    List<int> bytes = await file.readAsBytes();
+    print('bytes : ${bytes.length}');
+    Image image = decodeImage(bytes);
+    print('decode end');
 
-  await file.delete();
-  await file.writeAsBytes(encodeJpg(image));
-  //print(' save end');
+    image = copyRotate(image, angle);
+    print(' rotate end');
+
+    await file.delete();
+    await file.writeAsBytes(encodeJpg(image));
+    print(' save end');
+  } catch (e) {
+    print(e);
+  }
 }

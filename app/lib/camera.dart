@@ -87,8 +87,13 @@ class CameraWidgetState extends State<CameraWidget> {
 
       _setDetecting(true);
 
-      // Getting image angle.
-      int angle = await _getImageAngle(path);
+      int angle;
+      if (Platform.isAndroid) {
+        // Getting image angle.
+        angle = await _getImageAngle(path);
+      } else {
+        angle = 90;
+      }
 
       var receivePort = new ReceivePort();
       var map = {"path": path, "angle": angle};
@@ -120,7 +125,10 @@ class CameraWidgetState extends State<CameraWidget> {
       // Redirecting to Search Book screen with found text.
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => SearchBooksWidget(initialSearch: search)));
-    } finally {
+    } catch (e) {
+      debugPrint(e);
+    } 
+    finally {
       _setDetecting(false);
     }
   }
@@ -146,21 +154,28 @@ class CameraWidgetState extends State<CameraWidget> {
             ),
           )),
           Align(
-            alignment: Alignment.bottomCenter,
-          child: Container(
-            constraints: BoxConstraints.expand(height: 100.0),
-            child: Center(
-                child: detecting
-                    ? CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    )
-                    : FloatingActionButton.extended(
-                      backgroundColor: Colors.white,
-                        onPressed: detectText,
-                        icon: Icon(Icons.camera, color: Theme.of(context).accentColor,),
-                        label:  Text('SCAN', style: TextStyle(letterSpacing: 0.0, color: Colors.black54),),
-                      )),
-          ))
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                constraints: BoxConstraints.expand(height: 100.0),
+                child: Center(
+                    child: detecting
+                        ? CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
+                          )
+                        : FloatingActionButton.extended(
+                            backgroundColor: Colors.white,
+                            onPressed: detectText,
+                            icon: Icon(
+                              Icons.camera,
+                              color: Theme.of(context).accentColor,
+                            ),
+                            label: Text(
+                              'SCAN',
+                              style: TextStyle(
+                                  letterSpacing: 0.0, color: Colors.black54),
+                            ),
+                          )),
+              ))
         ],
       );
     }

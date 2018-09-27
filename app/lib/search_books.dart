@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 import 'book_card.dart';
 import 'BookModel.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
 
 class SearchBooksWidget extends StatefulWidget {
   final String initialSearch;
@@ -96,8 +98,20 @@ class _SearchBooksWidgetState extends State<SearchBooksWidget> {
   }
 
   @override
+    void didUpdateWidget(SearchBooksWidget oldWidget) {
+      // TODO: implement didUpdateWidget
+      super.didUpdateWidget(oldWidget);
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+    }
+
+  @override
   void initState() {
     super.initState();
+
+    if (Platform.isIOS) {
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+    }
+
     subject.stream
         .debounce(new Duration(milliseconds: 600))
         .listen(_textChanged);

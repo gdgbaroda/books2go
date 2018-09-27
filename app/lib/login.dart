@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'auth.dart';
 import 'root_context.dart';
 import 'colors.dart';
+import 'package:flutter/services.dart';
 
 class LoginWidget extends StatefulWidget {
   LoginWidget({Key key}) : super(key: key);
@@ -27,15 +28,19 @@ class LoginWidgetState extends State<LoginWidget> {
   /// Completes login process and redirects to Home screen.
   void _login() async {
     this._setLoading(true);
-    await Auth.login();
-    this._setLoading(false);
+    bool loggedIn = await Auth.login();
 
-    // Redirecting to Home
-    Navigator.of(context).pushNamed('/home');
+    if (loggedIn) {
+      // Redirecting to Home
+      Navigator.of(context).pushNamed('/home');
+    } else {
+      this._setLoading(false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     RootContext rootContext = context.inheritFromWidgetOfExactType(RootContext);
 
     return Scaffold(
@@ -68,7 +73,7 @@ class LoginWidgetState extends State<LoginWidget> {
   List<Widget> createLoginScreen() {
     return <Widget>[
       Icon(
-        Icons.book,
+        Icons.bookmark_border,
         size: 80.0,
         color: Colors.white,
       ),
@@ -83,15 +88,22 @@ class LoginWidgetState extends State<LoginWidget> {
       Container(
         margin: const EdgeInsets.only(top: 32.0),
         child: RaisedButton(
+          color: Theme.of(context).accentColor,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
                 margin: const EdgeInsets.only(right: 4.0),
-                child: Icon(Icons.account_circle),
+                child: Icon(
+                  Icons.account_circle,
+                  color: Colors.white,
+                ),
               ),
-              Text('Sign-In with Google'),
+              Text(
+                'Sign-In with Google',
+                style: TextStyle(color: Colors.white),
+              ),
             ],
           ),
           onPressed: _login,
