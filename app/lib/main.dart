@@ -51,6 +51,7 @@ class _AppState extends State<App> {
     return RootContext(
       user: user,
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
           title: 'Books2Go',
           theme: ThemeData.light().copyWith(
             accentColor: kSecondaryColor,

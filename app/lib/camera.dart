@@ -154,6 +154,13 @@ class CameraWidgetState extends State<CameraWidget> {
             ),
           )),
           Align(
+            
+            alignment: Alignment.topLeft,
+            child: Platform.isIOS ? BackButton(
+              color: Colors.white,
+            ):null
+          ),
+          Align(
               alignment: Alignment.bottomCenter,
               child: Container(
                 constraints: BoxConstraints.expand(height: 100.0),

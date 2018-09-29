@@ -73,19 +73,24 @@ class _FavBooksWidgetState extends State<FavBooksWidget> {
         ]));
   }
 
-  _onEntryAdded(Event event) {
+  void _onEntryAdded(Event event) {
     print('fav updated');
     if (this.mounted) {
-      setState(() {
-        _items.clear();
-        dynamic value = event.snapshot.value;
-        if (value != null) {
-          for (dynamic raw in value.values) {
-            BookModel book = BookModel.fromJson(raw);
-            book.isFavourite = true;
-            _items.add(book);
-          }
+      List<BookModel> newList = [];
+      dynamic value = event.snapshot.value;
+      if (value != null) {
+        for (dynamic raw in value.values) {
+          BookModel book = BookModel.fromJson(raw);
+          book.isFavourite = true;
+          newList.add(book);
         }
+      }
+      
+      newList.sort((a, b) => a.title.compareTo(b.title));
+
+      newList.forEach((b) => print(b.title));
+      setState(() {
+        _items = newList;
       });
     }
   }

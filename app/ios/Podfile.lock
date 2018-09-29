@@ -114,7 +114,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
   - firebase_ml_vision (from `.symlinks/plugins/firebase_ml_vision/ios`)
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
   - google_sign_in (from `.symlinks/plugins/google_sign_in/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
 
@@ -151,7 +151,7 @@ EXTERNAL SOURCES:
   firebase_ml_vision:
     :path: ".symlinks/plugins/firebase_ml_vision/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
   google_sign_in:
     :path: ".symlinks/plugins/google_sign_in/ios"
   path_provider:
